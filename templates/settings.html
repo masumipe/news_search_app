@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Settings</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; }
+        button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Settings</h1>
+        <form method="POST">
+            <label>Ollama Host:</label>
+            <input type="text" name="host" value="ollama-host">
+            <label>Ollama Port:</label>
+            <input type="text" name="port" value="11434">
+            <label>ML Model:</label>
+            <input type="text" name="model" value="ols-ml-model">
+            <button type="submit">Save Settings</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Results</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .result { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        h2 { color: #333; }
+        a { color: #4CAF50; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Search Results</h1>
+        {% for result in results %}
+        <div class="result">
+            <h2>{{ result.summary }}</h2>
+            <p><a href="{{ result.website }}">{{ result.website }}</a></p>
+        </div>
+        {% endfor %}
+        <a href="/">Back to Home</a>
+    </div>
+</body>
+</html>

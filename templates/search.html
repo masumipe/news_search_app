@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search News</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; }
+        button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Search News</h1>
+        <form method="POST">
+            <input type="text" name="topic" placeholder="Enter search topic" required>
+            <input type="text" name="region" placeholder="Region (e.g., US, UK)" required>
+            <input type="text" name="priority_region" placeholder="Priority Region" required>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+</body>
+</html>
