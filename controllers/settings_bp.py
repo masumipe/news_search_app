@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_required
 from utils.config import Config
 from models import User # Assuming User model is needed for settings
@@ -20,18 +20,19 @@ def settings():
     
     if request.method == 'POST':
         # Handle form submission for settings updates
-        # Example: Update Ollama settings
-        new_host = request.form.get('ollama_host')
-        new_port = request.form.get('ollama_port')
-        new_model = request.form.get('ollama_model')
+        # Support both old field names (host, port, model) and new field names (ollama_host, etc.)
+        new_host = request.form.get('ollama_host') or request.form.get('host')
+        new_port = request.form.get('ollama_port') or request.form.get('port')
+        new_model = request.form.get('ollama_model') or request.form.get('model')
         
         if new_host and new_port and new_model:
             config.save_ollama_settings(new_host, new_port, new_model)
             # Add logic to save settings to the database here
-            return redirect(url_for('settings_bp.settings', message="Settings updated successfully!"))
+            flash('Settings updated successfully!', 'success')
+            return redirect(url_for('settings_bp.settings'))
         
         # Handle other settings updates...
-        return "Error updating settings", 400
+        flash('Error: All fields are required.', 'error')
     
     # GET request: display settings form
     return render_template('settings.html', config=config)

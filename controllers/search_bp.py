@@ -1,9 +1,10 @@
+from flask import Blueprint, render_template, request, redirect, url_for
+from flask_login import current_user, login_required
 from models import NewsSearch, ReportGenerator
-from flask import Blueprint
 
-# Import blueprints from submodules
-from controllers.search_bp import search_bp
-from controllers.settings_bp import settings_bp
+# Create a blueprint for search
+search_bp = Blueprint('search', __name__)
+
 
 class SearchController:
     @staticmethod
@@ -23,6 +24,7 @@ class SearchController:
         ]
         return results
 
+
 class ReportController:
     @staticmethod
     def generate_report(topic, region):
@@ -36,6 +38,7 @@ class ReportController:
         )
         return report
 
+
 class SettingsController:
     @staticmethod
     def get_settings():
@@ -44,3 +47,18 @@ class SettingsController:
             'port': '11434',
             'model': 'ols-ml-model'
         }
+
+@search_bp.route('/', methods=['GET', 'POST'])
+def search():
+    """Search news articles"""
+    if request.method == 'POST':
+        topic = request.form.get('topic')
+        region = request.form.get('region')
+        priority_region = request.form.get('priority_region')
+        
+        # Use controller to handle search
+        results = SearchController.search(topic, region, priority_region)
+        
+        return render_template('search_results.html', results=results)
+    
+    return render_template('search.html')

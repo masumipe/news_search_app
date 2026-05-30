@@ -36,7 +36,7 @@ def load_user(user_id):
     return User.get_by_id(int(user_id))
 
 # Register blueprints for MVC structure
-from controllers import search_bp, report_bp, settings_bp, settings_bp
+from controllers import search_bp, settings_bp
 app.register_blueprint(search_bp, url_prefix='/search')
 app.register_blueprint(settings_bp, url_prefix='/settings')
 
