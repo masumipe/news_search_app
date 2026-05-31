@@ -68,20 +68,6 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-    """Search news articles"""
-    if request.method == 'POST':
-        topic = request.form.get('topic')
-        region = request.form.get('region')
-        priority_region = request.form.get('priority_region')
-        
-        # Use controller to handle search
-        results = SearchController.search(topic, region, priority_region)
-        
-        return render_template('search_results.html', results=results)
-    return render_template('search.html')
-
 @app.route('/report/<int:report_id>')
 @login_required
 def view_report(report_id):

@@ -12,7 +12,7 @@ def before_settings_request():
     """Ensure user is logged in before accessing settings."""
     pass
 
-@settings_bp.route('/', methods=['GET', 'POST'])
+@settings_bp.route('/', methods=['GET', 'POST'], endpoint='settings')
 @login_required
 def settings():
     """Settings page handler."""
