@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ollama Configuration</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; }
+        button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        .message { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ollama Configuration</h1>
+        {% if message %}
+        <div class="message {{ 'success' if message.startswith('Settings updated') else 'error' }}">
+            {{ message }}
+        </div>
+        {% endif %}
+        <form method="POST">
+            <label>Ollama Host:</label>
+            <input type="text" name="host" value="{{ config.ollama_host|default('localhost') }}">
+            <label>Ollama Port:</label>
+            <input type="text" name="port" value="{{ config.ollama_port|default('11434') }}">
+            <label>ML Model:</label>
+            <input type="text" name="model" value="{{ config.ollama_model|default('vaultbox/qwen3.5-uncensored:4b') }}">
+            <button type="submit">Save Settings</button>
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+</body>
+</html>

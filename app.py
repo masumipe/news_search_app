@@ -37,7 +37,7 @@ def load_user(user_id):
 
 # Register blueprints for MVC structure
 from controllers import search_bp, settings_bp
-app.register_blueprint(search_bp, url_prefix='/search')
+app.register_blueprint(search_bp)  # No url_prefix - routes start with /
 app.register_blueprint(settings_bp, url_prefix='/settings')
 
 # Routes
@@ -82,8 +82,8 @@ def generate_report():
     topic = request.form.get('topic')
     region = request.form.get('region')
     
-    report = ReportGenerator.generate_report(topic, region)
-    return redirect(url_for('view_report', report_id=report.id))
+    report_id = ReportController.generate_report(topic, region)
+    return redirect(url_for('view_report', report_id=report_id))
 
 @app.route('/settings')
 @login_required

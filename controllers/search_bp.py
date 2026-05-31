@@ -1,42 +1,36 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import current_user, login_required
 from models import NewsSearch, ReportGenerator
+from utils.news_fetcher import fetch_news_results
 
 # Create a blueprint for search
 search_bp = Blueprint('search', __name__)
 
-
+news_api="e624435db47745f78ac115b8e2ae92c0"
 class SearchController:
     @staticmethod
     def search(topic, region, priority_region):
-        # Simulated search results
-        results = [
-            NewsSearch(1, topic, region, f"News about {topic} in {region}", "news1.com"),
-            NewsSearch(2, topic, region, f"Breaking news on {topic}", "news2.com"),
-            NewsSearch(3, topic, region, f"Analysis of {topic}", "news3.com"),
-            NewsSearch(4, topic, region, f"Latest updates on {topic}", "news4.com"),
-            NewsSearch(5, topic, region, f"Expert opinion on {topic}", "news5.com"),
-            NewsSearch(6, topic, region, f"Market impact of {topic}", "news6.com"),
-            NewsSearch(7, topic, region, f"Economic implications of {topic}", "news7.com"),
-            NewsSearch(8, topic, region, f"Industry trends in {topic}", "news8.com"),
-            NewsSearch(9, topic, region, f"Global perspective on {topic}", "news9.com"),
-            NewsSearch(10, topic, region, f"Future outlook for {topic}", "news10.com"),
-        ]
+        """Search and save results to database."""
+        results = []
+        fetched_results = fetch_news_results(topic, region, priority_region, max_results=10)
+
+        for item in fetched_results:
+            summary = item.get('summary') or f"News about {topic} in {region}"
+            website = item.get('website')
+            results.append(NewsSearch(None, topic, region, summary, website))
+
+        for result in results:
+            result.id = result.save()
+
         return results
 
 
 class ReportController:
     @staticmethod
     def generate_report(topic, region):
-        report = ReportGenerator(
-            id=1,
-            topic=topic,
-            region=region,
-            financial_analysis=f"Financial analysis for {topic} in {region}",
-            images=["image1.png", "image2.png"],
-            tables=["table1.csv", "table2.csv"]
-        )
-        return report
+        report = ReportGenerator.generate_report(topic, region)
+        report_id = report.save()  # Save report to database
+        return report_id
 
 
 class SettingsController:
@@ -62,3 +56,12 @@ def search():
         return render_template('search_results.html', results=results)
     
     return render_template('search.html')
+
+
+@search_bp.route('/<int:search_id>')
+def view_search_result(search_id):
+    """View individual search result by ID."""
+    result = NewsSearch.get_by_id(search_id)
+    if result:
+        return render_template('search_result.html', result=result)
+    return 'Search result not found', 404
