@@ -42,7 +42,7 @@ class SettingsController:
             'model': 'ols-ml-model'
         }
 
-@search_bp.route('/', methods=['GET', 'POST'])
+@search_bp.route('/search', methods=['GET', 'POST'])
 def search():
     """Search news articles"""
     if request.method == 'POST':
@@ -54,11 +54,11 @@ def search():
         results = SearchController.search(topic, region, priority_region)
         
         return render_template('search_results.html', results=results)
-    
-    return render_template('search.html')
+    else:                       
+        return render_template('search.html')
 
 
-@search_bp.route('/<int:search_id>')
+@search_bp.route('/search/<int:search_id>')
 def view_search_result(search_id):
     """View individual search result by ID."""
     result = NewsSearch.get_by_id(search_id)

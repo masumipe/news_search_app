@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Show loading message
             document.querySelector('h1').textContent = 'Searching...';
-            
+            console.log("Submitting search with:", { topic, region, priority_region });
             // Submit form normally to Flask backend
             searchForm.submit();
         });
