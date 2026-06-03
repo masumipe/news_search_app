@@ -2,11 +2,12 @@ import sqlite3
 import os
 from flask_login import UserMixin
 
-DATABASE_PATH = os.path.join(os.path.dirname(__file__), '..', 'database.db')
+DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'database.db')
 
 
 def init_db():
-    """Initialize the database with required tables."""
+    """Ensure the database and required tables exist."""
+    os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     
@@ -170,3 +171,7 @@ class ReportGenerator:
         if row:
             return cls(row['id'], row['topic'], row['region'], row['financial_analysis'], row['images'], row['tables'])
         return None
+
+
+# Ensure the database is created and tables exist when models are imported.
+init_db()

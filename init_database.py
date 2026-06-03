@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 
 # Get the application directory
-APP_DIR = Path(__file__).parent.parent
+APP_DIR = Path(__file__).parent
 DATABASE_PATH = APP_DIR / 'database.db'
 
 

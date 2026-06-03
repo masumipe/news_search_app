@@ -11,21 +11,21 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from models import NewsSearch, ReportGenerator
-from controllers import SearchController, ReportController, SettingsController
+from models import User
+from controllers import search_bp, settings_bp, ReportController
 from utils.auth import AuthManager
 from utils.config import Config
-from models import User
 
 
 
 # Create Flask application
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
-app.config['DATABASE'] = 'news_search.db'
+app.config['DATABASE'] = 'database.db'
 
 # Initialize components
 login_manager = LoginManager()
+login_manager.login_view = 'login'
 login_manager.init_app(app)
 auth_manager = AuthManager(app)
 config = Config()
@@ -85,12 +85,6 @@ def generate_report():
     report_id = ReportController.generate_report(topic, region)
     return redirect(url_for('view_report', report_id=report_id))
 
-@app.route('/settings')
-@login_required
-def settings():
-    """Settings page"""
-    return render_template('settings.html')
-
 @app.route('/api/ollama/config', methods=['GET', 'POST'])
 @login_required
 def ollama_config():
@@ -106,4 +100,5 @@ def ollama_config():
     return render_template('ollama_config.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=7000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)

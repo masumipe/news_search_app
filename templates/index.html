@@ -3,19 +3,61 @@
 <head>
     <title>News Search App</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
-        .container { border: 1px solid #ddd; padding: 20px; border-radius: 5px; }
-        button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background-color: #45a049; }
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 50px auto; 
+            padding: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container { 
+            background-color: white;
+            border: 1px solid #ddd; 
+            padding: 20px; 
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #0066cc;
+            padding-bottom: 10px;
+        }
+        p {
+            color: #666;
+            line-height: 1.6;
+        }
+        .nav-menu {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        .nav-menu a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px 10px 5px 0;
+            background-color: #0066cc;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .nav-menu a:hover {
+            background-color: #0052a3;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>News Search Application</h1>
         <p>Welcome to the intelligent news search platform.</p>
-        <a href="/search">Search News</a> | 
-        <a href="/settings">Settings</a> | 
-        <a href="/login">Login</a>
+        <p>Search news, configure your preferences, and manage website priorities.</p>
+        
+        <div class="nav-menu">
+            <a href="/search">🔍 Search News</a>
+            <a href="/settings">⚙️ Settings</a>
+            <a href="/settings/site_settings">🌐 Site Settings</a>
+            <a href="/login">🔐 Login</a>
+        </div>
     </div>
 </body>
 </html>

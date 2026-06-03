@@ -12,14 +12,13 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 
 
 def _build_query(topic, region=None, priority_region=None):
-    parts = []
-    if topic:
-        parts.append(topic)
-    if priority_region and priority_region.strip().lower() != (region or '').strip().lower():
-        parts.append(priority_region)
-    if region:
-        parts.append(region)
-    return ' '.join(parts).strip()
+    """Build search query from topic. Handle comma/space-separated keywords."""
+    if not topic:
+        return ''
+    
+    # Split by comma or space and join with space for API
+    keywords = [k.strip() for k in topic.replace(',', ' ').split() if k.strip()]
+    return ' '.join(keywords)
 
 
 def _search_newsapi(query, max_results):
@@ -57,10 +56,8 @@ def _parse_google_news_rss_link(description_html):
 
 
 def _search_google_news_rss(query, region=None, priority_region=None, max_results=10):
-    region_code = 'BD' if any(
-        str(value).strip().lower() == 'bangladesh'
-        for value in (region, priority_region)
-    ) else 'US'
+    """Search Google News RSS for articles containing keywords."""
+    region_code = 'US'
 
     params = {
         'q': query,
@@ -99,14 +96,29 @@ def _search_google_news_rss(query, region=None, priority_region=None, max_result
 
 
 def fetch_news_results(topic, region=None, priority_region=None, max_results=10):
-    query = _build_query(topic, region, priority_region)
+    """Fetch news results based on keywords, filtering by site settings."""
+    query = _build_query(topic)
     if not query:
         return []
 
+    # Import here to avoid circular imports
+    from utils.site_settings import SiteSettings
+    site_settings = SiteSettings()
+
     if NEWS_API_KEY:
         try:
-            return _search_newsapi(query, max_results)
+            results = _search_newsapi(query, max_results * 2)  # Fetch more to account for filtering
         except Exception as exc:
             print(f'NewsAPI lookup failed: {exc}')
+            results = []
+    else:
+        results = _search_google_news_rss(query, max_results=max_results * 2)
 
-    return _search_google_news_rss(query, region, priority_region, max_results)
+    # Filter results based on site settings
+    filtered_results = [
+        article for article in results 
+        if site_settings.should_include_article(article.get('website'))
+    ]
+
+    # Return requested number of results
+    return filtered_results[:max_results]
