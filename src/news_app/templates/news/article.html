@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}{{ article.title[:60] }} - NewsAI{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <article class="card shadow-sm mb-4">
+            {% if article.url_to_image %}
+            <img src="{{ article.url_to_image }}" class="card-img-top" alt="{{ article.title }}"
+                 style="max-height: 400px; object-fit: cover;" onerror="this.style.display='none'">
+            {% endif %}
+            <div class="card-body">
+                <h2 class="card-title">{{ article.title }}</h2>
+                <div class="mb-3 text-muted small">
+                    <span class="me-3"><i class="bi bi-person"></i> {{ article.author or 'Unknown' }}</span>
+                    <span class="me-3"><i class="bi bi-building"></i> {{ article.source_name }}</span>
+                    <span class="me-3"><i class="bi bi-globe"></i> {{ article.country }}</span>
+                    <span><i class="bi bi-calendar"></i> {{ article.published_at.strftime('%B %d, %Y') if article.published_at else '' }}</span>
+                </div>
+                <div class="mb-3">
+                    {% for tag in article.tag_list() %}
+                    <span class="badge bg-secondary me-1">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                <hr>
+                <div class="card-text">
+                    <p class="lead">{{ article.description }}</p>
+                    <p>{{ article.content }}</p>
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <a href="{{ article.url }}" target="_blank" class="btn btn-primary" rel="noopener">
+                        <i class="bi bi-box-arrow-up-right"></i> View Original
+                    </a>
+                    {% if not in_reading_list %}
+                    <form method="POST" action="{{ url_for('news.add_to_reading_list', article_id=article.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-outline-secondary">
+                            <i class="bi bi-bookmark-plus"></i> Save to Reading List
+                        </button>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-secondary" disabled>
+                        <i class="bi bi-bookmark-check"></i> Saved
+                    </button>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('news.record_interaction', article_id=article.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="type" value="like">
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="bi bi-hand-thumbs-up"></i> Like
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('news.record_interaction', article_id=article.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="type" value="dislike">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="bi bi-hand-thumbs-down"></i> Dislike
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="col-lg-4">
+        {% if analytics %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-robot"></i> AI Analysis</h5>
+            </div>
+            <div class="card-body">
+                {% if analytics.sentiment %}
+                <div class="mb-3">
+                    <h6>Sentiment</h6>
+                    <span class="badge bg-{{ 'success' if analytics.sentiment.get('sentiment') == 'positive'
+                                               else 'danger' if analytics.sentiment.get('sentiment') == 'negative'
+                                               else 'secondary' }} fs-6">
+                        {{ analytics.sentiment.get('sentiment', 'N/A')|upper }}
+                    </span>
+                    <small class="text-muted ms-2">Score: {{ "%.2f"|format(analytics.sentiment.get('score', 0)) }}</small>
+                    {% if analytics.sentiment.get('key_phrases') %}
+                    <div class="mt-2">
+                        {% for phrase in analytics.sentiment.key_phrases %}
+                        <span class="badge bg-light text-dark me-1">{{ phrase }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if analytics.risks and analytics.risks.get('risks') %}
+                <div class="mb-3">
+                    <h6>Risk Factors</h6>
+                    {% for risk in analytics.risks.risks %}
+                    <div class="mb-2 p-2 border-start border-3 border-{{ 'danger' if risk.get('severity') == 'high'
+                                                                     else 'warning' if risk.get('severity') == 'medium'
+                                                                     else 'info' }}">
+                        <strong>{{ risk.get('type', '').replace('_', ' ')|title }}</strong>
+                        <span class="badge bg-{{ 'danger' if risk.get('severity') == 'high'
+                                                 else 'warning' if risk.get('severity') == 'medium'
+                                                 else 'info' }} ms-1">{{ risk.get('severity', '') }}</span>
+                        <p class="small mb-0 mt-1">{{ risk.get('description', '') }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if analytics.summary %}
+                <div>
+                    <h6>Summary</h6>
+                    <p class="small">{{ analytics.summary[:300] }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-lightning"></i> Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('reports.generate', article_ids=article.id) }}"
+                       class="btn btn-success">
+                        <i class="bi bi-file-earmark-plus"></i> Generate Report with this Article
+                    </a>
+                    {% if article.url %}
+                    <a href="{{ article.url }}" target="_blank" class="btn btn-outline-primary" rel="noopener">
+                        <i class="bi bi-box-arrow-up-right"></i> Open Original
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

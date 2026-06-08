@@ -1,0 +1,39 @@
+Metadata-Version: 2.4
+Name: news-app
+Version: 0.1.0
+Summary: Intelligent news search, personalized reading, and report generation with AI
+Author: Dev Team
+Project-URL: homepage, https://github.com/example/news-app
+Project-URL: repository, https://github.com/example/news-app
+Requires-Python: >=3.11
+Requires-Dist: flask>=3.0
+Requires-Dist: flask-login>=0.6
+Requires-Dist: flask-sqlalchemy>=3.1
+Requires-Dist: flask-migrate>=4.0
+Requires-Dist: flask-wtf>=1.2
+Requires-Dist: sqlalchemy>=2.0
+Requires-Dist: psycopg2-binary>=2.9
+Requires-Dist: gradio>=4.0
+Requires-Dist: scikit-learn>=1.4
+Requires-Dist: numpy>=1.26
+Requires-Dist: requests>=2.31
+Requires-Dist: python-dotenv>=1.0
+Requires-Dist: gunicorn>=22.0
+Requires-Dist: bcrypt>=4.1
+Requires-Dist: markdown>=3.5
+Requires-Dist: html2text>=2024.2
+Requires-Dist: bleach>=6.1
+Requires-Dist: redis>=5.0
+Requires-Dist: celery>=5.3
+Requires-Dist: email-validator>=2.1
+Requires-Dist: pydantic>=2.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: pytest-flask>=1.3; extra == "dev"
+Requires-Dist: pytest-cov>=5.0; extra == "dev"
+Requires-Dist: factory-boy>=3.3; extra == "dev"
+Requires-Dist: pytest-mock>=3.12; extra == "dev"
+Requires-Dist: bandit>=1.7; extra == "dev"
+Requires-Dist: ruff>=0.3; extra == "dev"
+Requires-Dist: mypy>=1.8; extra == "dev"
+Requires-Dist: coverage>=7.4; extra == "dev"

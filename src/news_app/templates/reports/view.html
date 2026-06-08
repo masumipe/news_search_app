@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}{{ report.title[:60] }} - NewsAI{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2>{{ report.title }}</h2>
+                <p class="text-muted mb-0">
+                    <span class="badge bg-{{ 'success' if report.status == 'completed'
+                                             else 'warning' if report.status == 'generating'
+                                             else 'danger' }}">{{ report.status }}</span>
+                    {{ report.report_type.replace('_', ' ')|title }}
+                    &middot; {{ report.created_at.strftime('%B %d, %Y at %H:%M') if report.created_at else '' }}
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <button onclick="window.print()" class="btn btn-outline-secondary">
+                    <i class="bi bi-printer"></i> Print / PDF
+                </button>
+                <form method="POST" action="{{ url_for('reports.delete_report', report_id=report.id) }}"
+                      onsubmit="return confirm('Delete this report?')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-outline-danger">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if report.status == 'generating' %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Generating...</span>
+                </div>
+                <h5>Report is being generated...</h5>
+                <p class="text-muted">This may take 30-60 seconds. Please refresh the page.</p>
+                <button onclick="location.reload()" class="btn btn-primary">Refresh</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% elif report.status == 'failed' %}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-danger">
+            <h5><i class="bi bi-exclamation-triangle"></i> Report Generation Failed</h5>
+            <p class="mb-0">{{ report.summary }}</p>
+        </div>
+    </div>
+</div>
+{% elif report.status == 'completed' %}
+{% if sections %}
+<div class="row">
+    <div class="col-lg-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-list"></i> Sections</h5>
+            </div>
+            <div class="card-body p-2">
+                <nav class="nav flex-column">
+                    {% for section in sections %}
+                    <a class="nav-link small py-1" href="#section-{{ section.id }}">
+                        {{ section.title }}
+                    </a>
+                    {% endfor %}
+                </nav>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-9">
+        <div class="card shadow-sm">
+            <div class="card-body report-content">
+                {% if report.content_html %}
+                {{ report.content_html|safe }}
+                {% else %}
+                {% for section in sections %}
+                <section id="section-{{ section.id }}" class="mb-4">
+                    <h3>{{ section.title }}</h3>
+                    <div class="section-content">
+                        {% if section.section_type == 'table' %}
+                        <div class="table-responsive">
+                            {{ section.content|safe }}
+                        </div>
+                        {% elif section.section_type == 'list' %}
+                        <ul>
+                            {% for line in section.content.split('\n') %}
+                            {% if line.strip().startswith('- ') or line.strip().startswith('* ') %}
+                            <li>{{ line.strip()[2:] }}</li>
+                            {% elif line.strip() %}
+                            <li>{{ line.strip() }}</li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p>{{ section.content }}</p>
+                        {% endif %}
+                    </div>
+                </section>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        {% if report.content_html %}
+        {{ report.content_html|safe }}
+        {% else %}
+        <p class="text-muted">No content available.</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+@media print {
+    nav, .footer, .btn, form { display: none !important; }
+    .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+}
+.report-content h1, .report-content h2, .report-content h3 { margin-top: 1.5rem; }
+.report-content table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; }
+.report-content table th, .report-content table td {
+    padding: 0.5rem; border: 1px solid #dee2e6;
+}
+</style>
+{% endblock %}

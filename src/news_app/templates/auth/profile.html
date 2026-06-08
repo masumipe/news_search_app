@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Preferences - NewsAI{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h2 class="mb-4"><i class="bi bi-gear"></i> User Preferences</h2>
+        <div class="card shadow">
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="topics" class="form-label">Preferred Topics</label>
+                        <input type="text" class="form-control" id="topics" name="topics"
+                               value="{{ preferences.preferred_topics }}"
+                               placeholder="e.g., inflation, technology, banking, energy">
+                        <div class="form-text">Comma-separated list of topics you're interested in</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="countries" class="form-label">Preferred Countries</label>
+                        <input type="text" class="form-control" id="countries" name="countries"
+                               value="{{ preferences.preferred_countries }}"
+                               placeholder="e.g., Bangladesh, India, United States">
+                        <div class="form-text">Comma-separated; articles from these countries will be prioritized</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="news_sources" class="form-label">News Source URLs</label>
+                        <textarea class="form-control" id="news_sources" name="news_sources" rows="3"
+                                  placeholder="https://www.thedailystar.net&#10;https://www.bbc.com&#10;https://techcrunch.com">{% for src in preferences.get_news_sources() %}{{ src }}{{ '\n' if not loop.last }}{% endfor %}</textarea>
+                        <div class="form-text">One URL per line. The app will search these sources first.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="sectors" class="form-label">Preferred Sectors</label>
+                        <input type="text" class="form-control" id="sectors" name="sectors"
+                               value="{{ preferences.preferred_sectors }}"
+                               placeholder="e.g., finance, technology, healthcare">
+                    </div>
+                    <div class="mb-3">
+                        <label for="language" class="form-label">Language</label>
+                        <select class="form-select" id="language" name="language">
+                            <option value="en" {% if preferences.language == 'en' %}selected{% endif %}>English</option>
+                            <option value="bn" {% if preferences.language == 'bn' %}selected{% endif %}>Bangla</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="dark_mode" name="dark_mode"
+                               {% if preferences.dark_mode %}checked{% endif %}>
+                        <label class="form-check-label" for="dark_mode">Dark Mode</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Preferences</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

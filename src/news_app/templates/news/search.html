@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Search News - NewsAI{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <form method="GET" class="row g-2">
+            <div class="col-md-5">
+                <input type="text" class="form-control form-control-lg" name="q"
+                       value="{{ query }}" placeholder="Search news by topic..." required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control form-control-lg" name="country"
+                       value="{{ country }}" placeholder="Country (e.g., Bangladesh)" list="countryList">
+                <datalist id="countryList">
+                    {% for c in popular_countries %}
+                    <option value="{{ c }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('reports.generate', article_ids=[]) }}"
+                   class="btn btn-success btn-lg w-100" id="generateReportBtn" style="display:none;">
+                    <i class="bi bi-file-earmark-plus"></i> Generate Report
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if query %}
+<div class="row mb-3">
+    <div class="col-12">
+        <p class="text-muted">Results for <strong>"{{ query }}"</strong> ({{ total }} found)</p>
+    </div>
+</div>
+{% endif %}
+
+<div class="row" id="articleContainer">
+    {% for article in articles %}
+    <div class="col-md-6 col-lg-4 mb-3 article-card" data-article-id="{{ article.id }}">
+        <div class="card shadow-sm h-100">
+            {% if article.url_to_image %}
+            <img src="{{ article.url_to_image }}" class="card-img-top" alt="{{ article.title }}"
+                 style="height: 180px; object-fit: cover;" loading="lazy"
+                 onerror="this.style.display='none'">
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <h6 class="card-title">{{ article.title[:120] }}</h6>
+                <p class="card-text small text-muted flex-grow-1">
+                    {{ article.description[:150] if article.description else '' }}
+                </p>
+                <div class="mb-2">
+                    <span class="badge bg-secondary">{{ article.country }}</span>
+                    {% if article.source_name %}
+                    <span class="badge bg-light text-dark">{{ article.source_name }}</span>
+                    {% endif %}
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-auto">
+                    <small class="text-muted">
+                        {{ article.published_at[:10] if article.published_at else '' }}
+                    </small>
+                    <div class="btn-group">
+                        <a href="{{ url_for('news.view_article', article_id=article.id) }}"
+                           class="btn btn-sm btn-outline-primary">Read</a>
+                        <form method="POST"
+                              action="{{ url_for('news.add_to_reading_list', article_id=article.id) }}"
+                              class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                    title="Add to reading list">
+                                <i class="bi bi-bookmark-plus"></i>
+                            </button>
+                        </form>
+                        <button class="btn btn-sm btn-outline-info select-article"
+                                data-article-id="{{ article.id }}" title="Select for report">
+                            <i class="bi bi-check2-square"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            {% if query %}
+            No articles found for "{{ query }}". Try different keywords or region.
+            {% else %}
+            Enter a topic to search for news articles.
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if total > 20 %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page > 1 %}
+            <li class="page-item">
+            <a class="page-link" href="?q={{ query }}&country={{ country }}&page={{ page - 1 }}">Previous</a>
+        </li>
+        {% endif %}
+        {% for p in range(1, ((total // 20) + 2) if total else 1) %}
+        <li class="page-item {% if page == p %}active{% endif %}">
+            <a class="page-link" href="?q={{ query }}&country={{ country }}&page={{ p }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+        {% if page < (total // 20) %}
+        <li class="page-item">
+            <a class="page-link" href="?q={{ query }}&country={{ country }}&page={{ page + 1 }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectedArticles = new Set();
+    const generateBtn = document.getElementById('generateReportBtn');
+
+    document.querySelectorAll('.select-article').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.articleId;
+            if (selectedArticles.has(id)) {
+                selectedArticles.delete(id);
+                this.classList.remove('btn-info');
+                this.classList.add('btn-outline-info');
+            } else {
+                selectedArticles.add(id);
+                this.classList.remove('btn-outline-info');
+                this.classList.add('btn-info');
+            }
+            if (selectedArticles.size > 0) {
+                generateBtn.style.display = 'inline-block';
+                const params = Array.from(selectedArticles).map(id => 'article_ids=' + id).join('&');
+                generateBtn.href = "{{ url_for('reports.generate') }}?" + params;
+            } else {
+                generateBtn.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

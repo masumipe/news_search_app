@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Generate Report - NewsAI{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h2 class="mb-4"><i class="bi bi-file-earmark-plus"></i> Generate Report</h2>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Report Title (optional)</label>
+                        <input type="text" class="form-control" id="title" name="title"
+                               placeholder="e.g., Q1 Market Analysis Report">
+                    </div>
+                    <div class="mb-3">
+                        <label for="report_type" class="form-label">Report Type</label>
+                        <select class="form-select" id="report_type" name="report_type">
+                            {% for rtype in report_types %}
+                            <option value="{{ rtype }}">{{ rtype.replace('_', ' ')|title }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">
+                            Board Summary: C-suite ready &middot; Risk Memo: Risk-focused &middot;
+                            Market Overview: Broad view &middot; Financial Analysis: Deep dive
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Selected Articles ({{ articles|length }})</label>
+                        {% if articles %}
+                        <div class="list-group">
+                            {% for article in articles %}
+                            <div class="list-group-item">
+                                <input type="hidden" name="article_ids" value="{{ article.id }}">
+                                <div class="d-flex justify-content-between">
+                                    <span>{{ article.title[:100] }}</span>
+                                    <small class="text-muted">{{ article.source_name }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            No articles selected. <a href="{{ url_for('news.search') }}">Search for articles</a>
+                            and select them to include in the report.
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if articles %}
+                    <button type="submit" class="btn btn-success btn-lg w-100">
+                        <i class="bi bi-magic"></i> Generate Report with AI
+                    </button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> About Report Generation</h5>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-0">
+                    Reports are generated using local LLM (Ollama). The AI analyzes your selected articles
+                    and produces structured reports with executive summaries, sector analysis, risk assessment,
+                    and recommendations. Processing may take 30-60 seconds depending on article count.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
